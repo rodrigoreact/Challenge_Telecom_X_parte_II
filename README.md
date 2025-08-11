@@ -50,16 +50,6 @@ Este desafío no solo contribuye a tu crecimiento en el área de Ciencia de Dato
    jupyter notebook
    ```
 
-## Estructura del Repositorio
-
-```
-├── data/                   # Conjuntos de datos utilizados
-├── notebooks/              # Notebooks de Jupyter con el análisis
-├── src/                    # Scripts de Python para el modelado
-├── requirements.txt        # Dependencias del proyecto
-└── README.md               # Documentación del proyecto
-```
-
 ## Contribuir
 
 ¡Las contribuciones son bienvenidas! Si deseas colaborar:
