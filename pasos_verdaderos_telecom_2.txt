@@ -1,0 +1,57 @@
+Telecom X - Parte II:
+
+🛠️ Preparación de los Datos (Dataframe resultante de Telecom X - Parte I)
+a. Extracción del Archivo Tratado
+Carga el archivo CSV previamente limpiado y con columnas relevantes.
+
+b. Eliminación de Columnas Irrelevantes
+Quita columnas como el ID del cliente u otras que no aporten al análisis.
+
+c. Encoding
+Convierte variables categóricas en variables numéricas (por ejemplo, con One-Hot Encoding).
+
+📊 Análisis Exploratorio y Preprocesamiento Adicional
+d. Verificación de la Proporción de Cancelación (Churn)
+Usa value_counts() para observar el desbalance entre clases.
+
+e. Balanceo de Clases (opcional)
+Si hay desbalance, aplica técnicas como SMOTE, oversampling o undersampling.
+
+f. Correlación y Selección de Variables
+Análisis de Correlación: Revisa la matriz de correlación para encontrar relaciones útiles.
+
+Análisis Dirigido: Usa visualizaciones para ver cómo variables específicas influyen en la cancelación (ej. tiempo de contrato vs. cancelación).
+
+g. Normalización o Estandarización (si es necesario)
+Normaliza o estandariza solo si usarás modelos sensibles a la escala, como KNN, Regresión Logística o SVM.
+
+🤖 Modelado Predictivo
+h. Separación de Datos
+Divide el dataset en entrenamiento y prueba (por ejemplo, 70/30 o 80/20).
+
+i. Creación de Modelos
+Crea al menos dos modelos, uno que requiera normalización (KNN, Regresión Logística) y otro que no (Árbol de Decisión, Random Forest).
+
+📈 Evaluación de los Modelos
+j. Evaluación de los Modelos
+Usa métricas como:
+
+Exactitud
+Precisión
+Recall
+F1-score
+Matriz de confusión
+
+Compara los modelos y analiza si hay overfitting o underfitting.
+
+🔍 Interpretación y Conclusiones
+k. Análisis de la Importancia de las Variables
+Según el modelo, analiza:
+
+Coeficientes (Regresión Logística, SVM)
+
+Importancia de características (Random Forest, XGBoost)
+
+Contribución a distancia o clasificación (KNN)
+
+l. Conclusiones, factores que más influyeron en cancelación basado en sus variables, generar propuestas.

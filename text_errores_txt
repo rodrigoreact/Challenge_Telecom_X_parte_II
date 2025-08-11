@@ -1,0 +1,24 @@
+  File "C:\Users\User\Desktop\Telecom_I_II\telecom2.py", line 69, in <module>
+    modelo.fit(X_train, y_train)
+  File "C:\Users\User\Desktop\Telecom_I_II\venv\Lib\site-packages\sklearn\base.py", line 1365, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\Telecom_I_II\venv\Lib\site-packages\sklearn\linear_model\_base.py", line 618, in fit    
+    X, y = validate_data(
+           ^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\Telecom_I_II\venv\Lib\site-packages\sklearn\utils\validation.py", line 2971, in validate_data
+    X, y = check_X_y(X, y, **check_params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\Telecom_I_II\venv\Lib\site-packages\sklearn\utils\validation.py", line 1385, in check_X_y
+    y = _check_y(y, multi_output=multi_output, y_numeric=y_numeric, estimator=estimator)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\Telecom_I_II\venv\Lib\site-packages\sklearn\utils\validation.py", line 1395, in _check_y
+    y = check_array(
+        ^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\Telecom_I_II\venv\Lib\site-packages\sklearn\utils\validation.py", line 1105, in check_array
+    _assert_all_finite(
+  File "C:\Users\User\Desktop\Telecom_I_II\venv\Lib\site-packages\sklearn\utils\validation.py", line 120, in _assert_all_finite
+    _assert_all_finite_element_wise(
+  File "C:\Users\User\Desktop\Telecom_I_II\venv\Lib\site-packages\sklearn\utils\validation.py", line 169, in _assert_all_finite_element_wise
+    raise ValueError(msg_err)
+ValueError: Input y contains NaN.

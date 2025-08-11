@@ -1,0 +1,2472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telecom X - Análisis de Churn | Data Science Challenge</title>  
+  
+		  <!-- Tailwind CSS (solo para desarrollo, reemplazar en producción) -->
+<!-- <script src="https://cdn.tailwindcss.com"></script> -->
+
+<!-- Bootstrap 5 (versión consistente 5.3.2) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script> -->
+
+
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- PrismJS Syntax Highlighting -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-okaidia.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js" defer></script>
+
+<!-- <link rel="icon" type="image/svg+xml" href="../imagenes/favicon.svg"> -->
+
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iIzY2N2VlYSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMzIiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5UPC90ZXh0Pjwvc3ZnPg==" type="image/svg+xml">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+   
+    
+ 
+</head>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --danger-gradient: linear-gradient(135deg, #ff4d4d 0%, #f9cb28 100%);
+            --dark-bg: #0f0f23;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --border-color: rgba(255, 255, 255, 0.18);
+            --shadow-main: 0 8px 32px rgba(31, 38, 135, 0.37);
+            --shadow-hover: 0 12px 40px rgba(31, 38, 135, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animated {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: var(--shadow-main);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .glass-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Header Styles */
+        .header {
+            padding: 2rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            font-weight: 300;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        /* Phase Cards */
+        .phase-card {
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease both;
+        }
+
+        .phase-header {
+            color: white;
+            padding: 1.5rem;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phase-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -50px;
+            width: 100px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: skewX(-20deg);
+            transition: all 0.3s ease;
+        }
+
+        .phase-card:hover .phase-header::after {
+            right: -30px;
+        }
+
+        .phase-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+            animation: bounce 2s infinite;
+        }
+
+        .phase-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .phase-content {
+            padding: 2rem;
+        }
+
+        /* Task Items */
+        .task-item {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-item[onclick] {
+            cursor: pointer;
+        }
+
+        .task-item[onclick]:hover {
+            transform: translateX(15px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(103, 126, 234, 0.3);
+            background: rgba(103, 126, 234, 0.1);
+        }
+
+        .task-item[onclick]:hover::after {
+            content: '👆 Click para ver código';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: var(--primary-gradient);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            opacity: 0.9;
+            animation: pulse 1.5s infinite;
+        }
+
+        .task-item.completed {
+            border-left-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .task-item.in-progress {
+            border-left-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .task-item.pending {
+            border-left-color: #6b7280;
+            background: rgba(107, 114, 128, 0.1);
+        }
+
+        .task-icon {
+            font-size: 1.2rem;
+            margin-right: 1rem;
+            width: 30px;
+            text-align: center;
+        }
+
+        .task-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .task-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-progress {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .status-pending {
+            background: rgba(107, 114, 128, 0.2);
+            color: #6b7280;
+        }
+
+        /* Progress Bar */
+        .progress-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow-main);
+            text-align: center;
+        }
+
+        .progress-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(var(--success-gradient) 0deg 270deg, rgba(255, 255, 255, 0.2) 270deg 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            position: relative;
+            animation: rotate 2s ease-in-out;
+        }
+
+        .progress-circle::before {
+            content: '';
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            background: var(--card-bg);
+            border-radius: 50%;
+        }
+
+        .progress-text {
+            position: relative;
+            z-index: 2;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Spinner/Loader */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--secondary-gradient);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-main);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .phase-icon {
+                font-size: 1.5rem;
+            }
+            
+            .task-item {
+                padding: 1rem;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-gradient);
+        }
+
+        /* Loading States */
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* Modal Glass Effects */
+        .modal-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Copy Button */
+        .copy-btn {
+            transition: all 0.3s;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+
+        .copy-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            padding: 15px 0;
+        }
+
+        /* SHAP Visualization Container */
+        .shap-container {
+            height: 400px;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        /* Alert Styles */
+        .alert-model {
+            border-radius: 12px;
+            border-left: 4px solid;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animated"></div>
+    
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-chart-line"></i> Telecom X - Análisis de Churn</h1>
+            <p>Flujo de Trabajo Completo en Ciencia de Datos</p>
+        </div>
+
+        <!-- Progress Overview -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-8">
+                <div class="progress-section">
+                    <div class="progress-circle">
+                        <div class="progress-text">85%</div>
+                    </div>
+                    <h4>Progreso General del Proyecto</h4>
+                    <p class="text-muted">17 de 20 tareas completadas</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 1: Definición del Problema -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="glass-card phase-card">
+                    <div class="phase-header" style="background: var(--primary-gradient);">
+                        <i class="fas fa-bullseye phase-icon"></i>
+                        <h3 class="phase-title d-inline">Fase 1: Definición del Problema</h3>
+                    </div>
+                    <div class="phase-content">
+                        <div class="task-item completed">
+                            <div class="status-badge status-completed">Completado</div>
+                            <i class="fas fa-check-circle task-icon text-success"></i>
+                            <div>
+                                <div class="task-title">a. Definición del Objetivo</div>
+                                <div class="task-description">Predicción de cancelación de clientes (Churn) en Telecom X para identificar patrones y factores de riesgo.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 2: Preparación de Datos -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="glass-card phase-card">
+                    <div class="phase-header" style="background: var(--primary-gradient);">
+                        <i class="fas fa-database phase-icon"></i>
+                        <h3 class="phase-title d-inline">Fase 2: Preparación de Datos</h3>
+                    </div>
+                    <div class="phase-content">
+                        <div class="task-item completed">
+                            <div class="status-badge status-completed">Completado</div>
+                            <i class="fas fa-file-csv task-icon text-success"></i>
+                            <div>
+                                <div class="task-title">b. Extracción del Archivo Tratado</div>
+                                <div class="task-description">Dataset cargado desde '/content/sample_data/df_sin_customerID.csv' usando pandas.read_csv(). Verificación inicial con df.head() y análisis de tipos de datos.</div>
+                            </div>
+                        </div>
+                        <div class="task-item completed">
+                            <div class="status-badge status-completed">Completado</div>
+                            <i class="fas fa-trash-alt task-icon text-success"></i>
+                            <div>
+                                <div class="task-title">c. Eliminación de Columnas Irrelevantes</div>
+                                <div class="task-description">CustomerID ya removido en preprocessing anterior. Análisis de columnas únicas con df.nunique() para identificar variables irrelevantes.</div>
+                            </div>
+                        </div>
+                        <div class="task-item completed" onclick="openModal('encodingModal')">
+                            <div class="status-badge status-completed">Completado</div>
+                            <i class="fas fa-code task-icon text-success"></i>
+                            <div>
+                                <div class="task-title">d. Encoding de Variables</div>
+                                <div class="task-description">
+                                    Transformación de variables categóricas a numéricas para el modelo.
+                                    <small style="color: #667eea; font-weight: 500;">🖱️ Click para ver implementación</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 3: Análisis Exploratorio -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="glass-card phase-card">
+                    <div class="phase-header" style="background: var(--success-gradient);">
+                        <i class="fas fa-search-plus phase-icon"></i>
+                        <h3 class="phase-title d-inline">Fase 3: Análisis Exploratorio</h3>
+                    </div>
+                    <div class="phase-content">
+                        <div class="task-item completed" onclick="openModal('churnModal')">
+                            <div class="status-badge status-completed">Completado</div>
+                            <i class="fas fa-balance-scale task-icon text-success"></i>
+                            <div>
+                                <div class="task-title">e. Verificación de Proporción de Churn</div>
+                                <div class="task-description">
+                                    Análisis del desbalance de clases identificado usando value_counts(). 
+                                    <small style="color: #667eea; font-weight: 500;">🖱️ Click para ver código</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="task-item completed" onclick="openModal('smoteModal')">
+                            <div class="status-badge status-completed">Completado</div>
+                            <i class="fas fa-sync-alt task-icon text-success"></i>
+                            <div>
+                                <div class="task-title">f. Balanceo de Clases con SMOTE</div>
+                                <div class="task-description">
+                                    Aplicación de SMOTE para equilibrar dataset: 5174 registros por cada clase (0 y 1). 
+                                    <small style="color: #667eea; font-weight: 500;">🖱️ Click para ver código</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="task-item completed" onclick="openModal('correlationModal')">
+                            <div class="status-badge status-completed">Completado</div>
+                            <i class="fas fa-project-diagram task-icon text-success"></i>
+                            <div>
+                                <div class="task-title">g. Análisis de Correlación y Selección</div>
+                                <div class="task-description">
+                                    Matriz de correlación generada con seaborn. Variables con correlación >0.8 identificadas y eliminadas.
+                                    <small style="color: #667eea; font-weight: 500;">🖱️ Click para ver código</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="task-item completed" onclick="openModal('visualizationModal')">
+                            <div class="status-badge status-completed">Completado</div>
+                            <i class="fas fa-chart-bar task-icon text-success"></i>
+                            <div>
+                                <div class="task-title">h. Análisis Dirigido con Visualizaciones</div>
+                                <div class="task-description">
+                                    Gráficos de barras y boxplots para analizar relación entre variables específicas y Churn.
+                                    <small style="color: #667eea; font-weight: 500;">🖱️ Click para ver código</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="task-item completed" onclick="openModal('normalizationModal')">
+                            <div class="status-badge status-completed">Completado</div>
+                            <i class="fas fa-ruler-combined task-icon text-success"></i>
+                            <div>
+                                <div class="task-title">i. Normalización de Datos</div>
+                                <div class="task-description">
+                                    Aplicación de StandardScaler para modelos sensibles a escala (KNN, Regresión Logística).
+                                    <small style="color: #667eea; font-weight: 500;">🖱️ Click para ver implementación</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 4: Modelado Predictivo -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="glass-card phase-card">
+                    <div class="phase-header" style="background: var(--danger-gradient);">
+                        <i class="fas fa-brain phase-icon"></i>
+                        <h3 class="phase-title d-inline">Fase 4: Modelado Predictivo</h3>
+                    </div>
+                    <div class="phase-content">
+                        <div class="task-item completed">
+                            <div class="status-badge status-completed">Completado</div>
+                            <i class="fas fa-cut task-icon text-success"></i>
+                            <div>
+                                <div class="task-title">j. Separación de Datos</div>
+                                <div class="task-description">División 80/20 realizada: 80% entrenamiento, 20% prueba con estratificación.</div>
+                            </div>
+                        </div>
+                        <div class="task-item completed" onclick="openModal('modelTrainingModal')">
+                            <div class="status-badge status-completed">Completado</div>
+                            <i class="fas fa-cogs task-icon text-success"></i>
+                            <div>
+                                <div class="task-title">k. Creación de Modelos</div>
+                                <div class="task-description">
+                                    Entrenamiento de Random Forest, Regresión Logística y KNN.
+                                    <small style="color: #667eea; font-weight: 500;">🖱️ Click para ver resultados</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="task-item completed" onclick="openModal('gridSearchModal')">
+                            <div class="status-badge status-completed">Completado</div>
+                            <i class="fas fa-tune task-icon text-success"></i>
+                            <div>
+                                <div class="task-title">l. Optimización con GridSearchCV</div>
+                                <div class="task-description">
+                                    Búsqueda sistemática de los mejores hiperparámetros para Random Forest.
+                                    <small style="color: #667eea; font-weight: 500;">🖱️ Click para ver detalles técnicos</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 5: Evaluación -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="glass-card phase-card">
+                    <div class="phase-header" style="background: var(--warning-gradient);">
+                        <i class="fas fa-chart-pie phase-icon"></i>
+                        <h3 class="phase-title d-inline">Fase 5: Evaluación de Modelos</h3>
+                    </div>
+                    <div class="phase-content">
+                        <div class="task-item completed" onclick="openModal('metricsModal')">
+                            <div class="status-badge status-completed">Completado</div>
+                            <i class="fas fa-clipboard-check task-icon text-success"></i>
+                            <div>
+                                <div class="task-title">m. Métricas de Evaluación</div>
+                                <div class="task-description">
+                                    Cálculo de Accuracy, Precision, Recall, F1-Score y Matriz de Confusión para cada modelo.
+                                    <small style="color: #667eea; font-weight: 500;">🖱️ Click para ver comparación</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 6: Interpretación -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="glass-card phase-card">
+                    <div class="phase-header" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);">
+                        <i class="fas fa-lightbulb phase-icon"></i>
+                        <h3 class="phase-title d-inline">Fase 6: Interpretación y Conclusiones</h3>
+                    </div>
+                    <div class="phase-content">
+                        <div class="task-item completed" onclick="openModal('shapModal')">
+                            <div class="status-badge status-completed">Completado</div>
+                            <i class="fas fa-star task-icon text-success"></i>
+                            <div>
+                                <div class="task-title">n. Importancia de Variables</div>
+                                <div class="task-description">
+                                    Análisis de feature importance y coeficientes para identificar factores clave del churn.
+                                    <small style="color: #667eea; font-weight: 500;">🖱️ Click para ver patrones clave</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="task-item completed" onclick="openModal('conclusionsModal')">
+                            <div class="status-badge status-completed">Completado</div>
+                            <i class="fas fa-clipboard-list task-icon text-success"></i>
+                            <div>
+                                <div class="task-title">o. Conclusiones y Recomendaciones</div>
+                                <div class="task-description">
+                                    Generación de insights accionables y propuestas de mejora para reducir el churn.
+                                    <small style="color: #667eea; font-weight: 500;">🖱️ Click para ver recomendaciones</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals Section -->
+    
+    <!-- Modal: Churn Analysis -->
+    <div class="modal fade" id="churnModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content glass-card">
+                <div class="modal-header" style="background: var(--success-gradient); color: white;">
+                    <h5 class="modal-title"><i class="fas fa-balance-scale me-2"></i>Verificación de Proporción de Churn</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#churn-code">Código</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#churn-results">Resultados</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="churn-code" class="tab-pane fade show active">
+                            <pre><code class="language-python"># Análisis de proporción de churn
+churn_counts = df['Churn'].value_counts()
+churn_percentage = df['Churn'].value_counts(normalize=True) * 100
+
+print("Distribución de Churn:")
+print(churn_counts)
+print("\nPorcentajes:")
+print(churn_percentage)
+
+# Visualización
+import matplotlib.pyplot as plt
+plt.figure(figsize=(8, 6))
+churn_counts.plot(kind='bar')
+plt.title('Distribución de Churn')
+plt.xlabel('Churn (0=No, 1=Sí)')
+plt.ylabel('Cantidad de clientes')
+plt.show()</code></pre>
+                            <button class="btn btn-sm btn-outline-light copy-btn" data-target="churn-code">
+                                <i class="fas fa-copy"></i> Copiar Código
+                            </button>
+                        </div>
+                        <div id="churn-results" class="tab-pane fade">
+                            <div class="alert alert-warning">
+                                <strong>Desbalance identificado:</strong>
+                                <ul>
+                                    <li>No Churn (0): 73% (5,174 clientes)</li>
+                                    <li>Churn (1): 27% (1,869 clientes)</li>
+                                    <li>Ratio: 2.7:1 (desbalanceado)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Correlation Analysis -->
+    <div class="modal fade" id="correlationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content glass-card">
+                <div class="modal-header" style="background: var(--primary-gradient); color: white;">
+                    <h5 class="modal-title"><i class="fas fa-project-diagram me-2"></i>Análisis de Correlación</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#corr-code">Código</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#corr-results">Resultados</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="corr-code" class="tab-pane fade show active">
+                            <pre><code class="language-python">import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Matriz de correlación
+correlation_matrix = df.corr()
+
+# Visualizar matriz de correlación
+plt.figure(figsize=(12, 10))
+sns.heatmap(correlation_matrix, 
+            annot=True, 
+            cmap='coolwarm', 
+            center=0,
+            square=True)
+plt.title('Matriz de Correlación')
+plt.tight_layout()
+plt.show()
+
+# Encontrar correlaciones altas
+high_corr = correlation_matrix[abs(correlation_matrix) > 0.8]
+print("Variables con alta correlación (>0.8):")
+print(high_corr)</code></pre>
+                            <button class="btn btn-sm btn-outline-light copy-btn" data-target="corr-code">
+                                <i class="fas fa-copy"></i> Copiar Código
+                            </button>
+                        </div>
+                        <div id="corr-results" class="tab-pane fade">
+                            <div class="alert alert-info">
+                                <strong>Variables con alta correlación eliminadas:</strong>
+                                <ul>
+                                    <li>TotalCharges vs MonthlyCharges: 0.85</li>
+                                    <li>Contract_One year vs Contract_Two year: -0.82</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Visualization Analysis -->
+    <div class="modal fade" id="visualizationModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content glass-card">
+                <div class="modal-header" style="background: var(--success-gradient); color: white;">
+                    <h5 class="modal-title"><i class="fas fa-chart-bar me-2"></i>Análisis Dirigido con Visualizaciones</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-4">Gráficos de barras y boxplots para analizar relación entre variables específicas y Churn.</p>
+                    <div class="mb-4">
+                        <button onclick="openModal('seniorCitizenModal')" class="btn btn-outline-primary me-2 mb-2">🖱️ Ver gráfico: Senior Citizen</button>
+                        <button onclick="openModal('internetServiceModal')" class="btn btn-outline-primary me-2 mb-2">🖱️ Ver gráfico: Tipo de Servicio</button>
+                        <button onclick="openModal('genderModal')" class="btn btn-outline-primary me-2 mb-2">🖱️ Ver gráfico: Género</button>
+                        <button onclick="openModal('contractModal')" class="btn btn-outline-primary me-2 mb-2">🖱️ Ver gráfico: Tipo de Contrato</button>
+                        <button onclick="openModal('multipleLinesModal')" class="btn btn-outline-primary me-2 mb-2">🖱️ Ver gráfico: Múltiples Líneas</button>
+                    </div>
+                    <pre><code class="language-python"># Análisis por categorías
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Gráfico de barras para Senior Citizen
+plt.figure(figsize=(10, 6))
+sns.countplot(data=df, x='SeniorCitizen', hue='Churn')
+plt.title('Distribución de Churn por Senior Citizen')
+plt.show()
+
+# Gráfico para tipo de servicio de internet
+plt.figure(figsize=(10, 6))
+sns.countplot(data=df, x='InternetService', hue='Churn')
+plt.title('Distribución de Churn por Tipo de Servicio de Internet')
+plt.xticks(rotation=45)
+plt.show()</code></pre>
+                    <button class="btn btn-sm btn-outline-light copy-btn" data-target="visualization-code">
+                        <i class="fas fa-copy"></i> Copiar Código
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales para imágenes proporcionadas -->
+    <div class="modal fade" id="seniorCitizenModal" tabindex="-1" aria-labelledby="seniorCitizenModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="seniorCitizenModalLabel">Cancelación según Senior Citizen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <img src="img/senior_citizen.png" alt="Gráfico de cancelación según Senior Citizen (0=No, 1=Sí): ~4000 no churn y ~1500 churn para no Senior, ~1000 no churn y ~500 churn para Senior" loading="lazy" class="w-100 h-auto" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                    <div class="bg-gray-200 p-4 text-center d-none">
+                        <span class="text-muted">Imagen no disponible: Cancelación según Senior Citizen</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="internetServiceModal" tabindex="-1" aria-labelledby="internetServiceModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="internetServiceModalLabel">Cancelación según Tipo de Servicio</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <img src="img/internet_service.png" alt="Gráfico de cancelación según Tipo de Servicio: DSL (~1750 no churn, ~500 churn), Fibra Óptica (~1750 no churn, ~1250 churn), No (~1500 no churn, ~100 churn)" loading="lazy" class="w-100 h-auto" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                    <div class="bg-gray-200 p-4 text-center d-none">
+                        <span class="text-muted">Imagen no disponible: Cancelación según Tipo de Servicio</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="genderModal" tabindex="-1" aria-labelledby="genderModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="genderModalLabel">Cancelación según Género</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <img src="img/gender.png" alt="Gráfico de cancelación según Género: ~2500 no churn y ~1000 churn para ambos géneros (0 y 1)" loading="lazy" class="w-100 h-auto" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                    <div class="bg-gray-200 p-4 text-center d-none">
+                        <span class="text-muted">Imagen no disponible: Cancelación según Género</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="contractModal" tabindex="-1" aria-labelledby="contractModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contractModalLabel">Cancelación según Tipo de Contrato</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <img src="img/contract.png" alt="Gráfico de cancelación según Tipo de Contrato: One year (~1500 no churn, ~200 churn), Month-to-month (~2000 no churn, ~1500 churn), Two year (~1500 no churn, ~100 churn)" loading="lazy" class="w-100 h-auto" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                    <div class="bg-gray-200 p-4 text-center d-none">
+                        <span class="text-muted">Imagen no disponible: Cancelación según Tipo de Contrato</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="multipleLinesModal" tabindex="-1" aria-labelledby="multipleLinesModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="multipleLinesModalLabel">Cancelación según Múltiples Líneas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <img src="img/multiple_lines.png" alt="Gráfico de cancelación según Múltiples Líneas: 0 (~2500 no churn, ~1000 churn), 1 (~2000 no churn, ~1000 churn), 2 (~500 no churn, ~100 churn)" loading="lazy" class="w-100 h-auto" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                    <div class="bg-gray-200 p-4 text-center d-none">
+                        <span class="text-muted">Imagen no disponible: Cancelación según Múltiples Líneas</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Matriz de Confusión -->
+    <div class="modal fade" id="confusionMatrixModal" tabindex="-1" aria-labelledby="confusionMatrixModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confusionMatrixModalLabel">Matriz de Confusión Optimizada</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="bg-light p-4 text-center rounded">
+                        <span class="text-muted">Imagen no disponible: Matriz de Confusión para el modelo optimizado (proporciona datos para generar un gráfico)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Plan de Acción -->
+    <div class="modal fade" id="actionPlanModal" tabindex="-1" aria-labelledby="actionPlanModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="actionPlanModalLabel">Plan de Acción</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="bg-light p-4 text-center rounded">
+                        <span class="text-muted">Imagen no disponible: Recomendaciones incluyen paquetes promocionales para fibra óptica, incentivos para contratos anuales, y monitoreo proactivo</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Encoding -->
+    <div class="modal fade" id="encodingModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content glass-card">
+                <div class="modal-header" style="background: var(--primary-gradient); color: white;">
+                    <h5 class="modal-title"><i class="fas fa-code me-2"></i>Encoding de Variables</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#encoding-code">Código</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#encoding-results">Resultados</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="encoding-code" class="tab-pane fade show active">
+                            <pre><code class="language-python"># Binario (Yes=1, No=0)
+df['Churn'] = df['Churn'].map({'Yes': 1, 'No': 0})
+
+# One-Hot para categorías múltiples
+contract_dummies = pd.get_dummies(df['Contract'], prefix='Contract')
+df = pd.concat([df, contract_dummies], axis=1)
+
+# Label Encoding para género
+df['customer.gender'] = df['customer.gender'].map({'Male': 1, 'Female': 0})</code></pre>
+                            <button class="btn btn-sm btn-outline-light copy-btn" data-target="encoding-code">
+                                <i class="fas fa-copy"></i> Copiar Código
+                            </button>
+                        </div>
+                        <div id="encoding-results" class="tab-pane fade">
+                            <div class="alert alert-info">
+                                <strong>Variables transformadas:</strong>
+                                <ul>
+                                    <li>Churn: Yes → 1, No → 0</li>
+                                    <li>Contract: 3 nuevas columnas (Month-to-month, One year, Two year)</li>
+                                    <li>Gender: Male → 1, Female → 0</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: SMOTE -->
+    <div class="modal fade" id="smoteModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content glass-card">
+                <div class="modal-header" style="background: var(--success-gradient); color: white;">
+                    <h5 class="modal-title"><i class="fas fa-sync-alt me-2"></i>Balanceo con SMOTE</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#smote-code">Código</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#smote-results">Resultados</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="smote-code" class="tab-pane fade show active">
+                            <pre><code class="language-python">from imblearn.over_sampling import SMOTE
+
+smote = SMOTE(random_state=42)
+X_res, y_res = smote.fit_resample(X_train, y_train)
+
+print("Distribución antes:", y_train.value_counts())
+print("Distribución después:", y_res.value_counts())</code></pre>
+                            <button class="btn btn-sm btn-outline-light copy-btn" data-target="smote-code">
+                                <i class="fas fa-copy"></i> Copiar Código
+                            </button>
+                        </div>
+                        <div id="smote-results" class="tab-pane fade">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="alert alert-danger">
+                                        <h6><i class="fas fa-chart-pie"></i> Antes de SMOTE</h6>
+                                        <ul class="mb-0">
+                                            <li>Clase 0: 73% (4133 registros)</li>
+                                            <li>Clase 1: 27% (1501 registros)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="alert alert-success">
+                                        <h6><i class="fas fa-chart-pie"></i> Después de SMOTE</h6>
+                                        <ul class="mb-0">
+                                            <li>Clase 0: 50% (4133 registros)</li>
+                                            <li>Clase 1: 50% (4133 registros)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Normalización -->
+    <div class="modal fade" id="normalizationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content glass-card">
+                <div class="modal-header" style="background: var(--warning-gradient); color: white;">
+                    <h5 class="modal-title"><i class="fas fa-ruler-combined me-2"></i>Normalización de Datos</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#norm-code">Código</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#norm-results">Resultados</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="norm-code" class="tab-pane fade show active">
+                            <pre><code class="language-python">from sklearn.preprocessing import StandardScaler
+
+# Columnas a normalizar
+numeric_cols = ['account.Charges.Monthly', 'account.Charges.Total', 'customer.tenure']
+
+# Aplicar StandardScaler
+scaler = StandardScaler()
+df[numeric_cols] = scaler.fit_transform(df[numeric_cols])
+
+# Opción: MinMaxScaler
+# from sklearn.preprocessing import MinMaxScaler
+# scaler = MinMaxScaler()</code></pre>
+                            <button class="btn btn-sm btn-outline-light copy-btn" data-target="norm-code">
+                                <i class="fas fa-copy"></i> Copiar Código
+                            </button>
+                        </div>
+                        <div id="norm-results" class="tab-pane fade">
+                            <div class="alert alert-info">
+                                <strong>Estadísticas después de normalizar:</strong>
+                                <ul>
+                                    <li>Media ≈ 0</li>
+                                    <li>Desviación estándar ≈ 1</li>
+                                    <li>Rango: [-2.5, 2.5] para la mayoría de valores</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Entrenamiento de Modelos -->
+    <div class="modal fade" id="modelTrainingModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content glass-card">
+                <div class="modal-header" style="background: var(--danger-gradient); color: white;">
+                    <h5 class="modal-title"><i class="fas fa-brain me-2"></i>Entrenamiento de Modelos</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#model-code">Código</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#model-results">Resultados</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#model-comparison">Comparación</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="model-code" class="tab-pane fade show active">
+                            <pre><code class="language-python"># Regresión Logística
+from sklearn.linear_model import LogisticRegression
+model_lr = LogisticRegression(max_iter=1000)
+model_lr.fit(X_train, y_train)
+
+# Random Forest
+from sklearn.ensemble import RandomForestClassifier
+model_rf = RandomForestClassifier(n_estimators=100)
+model_rf.fit(X_train, y_train)
+
+# KNN
+from sklearn.neighbors import KNeighborsClassifier
+model_knn = KNeighborsClassifier(n_neighbors=5)
+model_knn.fit(X_train, y_train)</code></pre>
+                            <button class="btn btn-sm btn-outline-light copy-btn" data-target="model-code">
+                                <i class="fas fa-copy"></i> Copiar Código
+                            </button>
+                        </div>
+                        <div id="model-results" class="tab-pane fade">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="alert alert-info">
+                                        <h6><i class="fas fa-project-diagram"></i> Regresión Logística</h6>
+                                        <ul class="mb-0">
+                                            <li>Accuracy: 80%</li>
+                                            <li>Precisión (Churn=1): 66%</li>
+                                            <li>Recall (Churn=1): 53%</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="alert alert-success">
+                                        <h6><i class="fas fa-tree"></i> Random Forest</h6>
+                                        <ul class="mb-0">
+                                            <li>Accuracy: 82%</li>
+                                            <li>Precisión (Churn=1): 67%</li>
+                                            <li>Recall (Churn=1): 63%</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="alert alert-warning">
+                                        <h6><i class="fas fa-network-wired"></i> KNN</h6>
+                                        <ul class="mb-0">
+                                            <li>Accuracy: 76%</li>
+                                            <li>Precisión (Churn=1): 58%</li>
+                                            <li>Recall (Churn=1): 49%</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="model-comparison" class="tab-pane fade">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Modelo</th>
+                                        <th>Ventajas</th>
+                                        <th>Limitaciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Regresión Logística</td>
+
+										<td>Regresión Logística</td>
+                                        <td>
+                                            <ul>
+                                                <li>Interpretable</li>
+                                                <li>Rápido entrenamiento</li>
+                                                <li>Probabilidades calibradas</li>
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <ul>
+                                                <li>Asume linealidad</li>
+                                                <li>Sensible a outliers</li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Random Forest</td>
+                                        <td>
+                                            <ul>
+                                                <li>Maneja no linealidad</li>
+                                                <li>Feature importance</li>
+                                                <li>Robusto a outliers</li>
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <ul>
+                                                <li>Menos interpretable</li>
+                                                <li>Puede sobreajustar</li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>KNN</td>
+                                        <td>
+                                            <ul>
+                                                <li>Simple implementación</li>
+                                                <li>No asume distribución</li>
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <ul>
+                                                <li>Sensible a la escala</li>
+                                                <li>Costoso computacionalmente</li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: GridSearch -->
+    <div class="modal fade" id="gridSearchModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content glass-card">
+                <div class="modal-header" style="background: var(--danger-gradient); color: white;">
+                    <h5 class="modal-title"><i class="fas fa-tune me-2"></i>Optimización con GridSearchCV</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#grid-code">Código</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#grid-params">Parámetros</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#grid-results">Resultados</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="grid-code" class="tab-pane fade show active">
+                            <pre><code class="language-python">from sklearn.model_selection import GridSearchCV
+
+# Definir grilla de parámetros para Random Forest
+param_grid = {
+    'n_estimators': [100, 200, 300],
+    'max_depth': [10, 20, None],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4]
+}
+
+# GridSearchCV con validación cruzada
+grid_search = GridSearchCV(
+    RandomForestClassifier(random_state=42),
+    param_grid,
+    cv=5,
+    scoring='f1',
+    n_jobs=-1,
+    verbose=1
+)
+
+# Entrenar
+grid_search.fit(X_train_balanced, y_train_balanced)
+
+# Mejores parámetros
+print("Mejores parámetros:", grid_search.best_params_)
+print("Mejor puntuación CV:", grid_search.best_score_)</code></pre>
+                            <button class="btn btn-sm btn-outline-light copy-btn" onclick="copyCode(this)">
+                                <i class="fas fa-copy"></i> Copiar Código
+                            </button>
+                        </div>
+                        <div id="grid-params" class="tab-pane fade">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Parámetro</th>
+                                            <th>Valores Probados</th>
+                                            <th>Descripción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>n_estimators</td>
+                                            <td>[100, 200, 300]</td>
+                                            <td>Número de árboles en el bosque</td>
+                                        </tr>
+                                        <tr>
+                                            <td>max_depth</td>
+                                            <td>[10, 20, None]</td>
+                                            <td>Profundidad máxima de cada árbol</td>
+                                        </tr>
+                                        <tr>
+                                            <td>min_samples_split</td>
+                                            <td>[2, 5, 10]</td>
+                                            <td>Mínimo muestras para dividir nodo</td>
+                                        </tr>
+                                        <tr>
+                                            <td>min_samples_leaf</td>
+                                            <td>[1, 2, 4]</td>
+                                            <td>Mínimo muestras en hoja</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="grid-results" class="tab-pane fade">
+                            <div class="alert alert-success">
+                                <h6><i class="fas fa-trophy"></i> Mejores Parámetros Encontrados</h6>
+                                <ul>
+                                    <li><strong>n_estimators:</strong> 200</li>
+                                    <li><strong>max_depth:</strong> 20</li>
+                                    <li><strong>min_samples_split:</strong> 5</li>
+                                    <li><strong>min_samples_leaf:</strong> 2</li>
+                                    <li><strong>F1-Score CV:</strong> 0.847</li>
+                                </ul>
+                            </div>
+                            <div class="alert alert-info">
+                                <strong>Mejora obtenida:</strong> +3.2% en F1-Score vs modelo base
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Métricas de Evaluación -->
+    <div class="modal fade" id="metricsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content glass-card">
+                <div class="modal-header" style="background: var(--warning-gradient); color: white;">
+                    <h5 class="modal-title"><i class="fas fa-clipboard-check me-2"></i>Métricas de Evaluación</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#metrics-code">Código</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#metrics-comparison">Comparación</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#metrics-confusion">Matriz Confusión</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="metrics-code" class="tab-pane fade show active">
+                            <pre><code class="language-python">from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+
+# Predicciones con el modelo optimizado
+best_rf = grid_search.best_estimator_
+y_pred = best_rf.predict(X_test)
+
+# Métricas completas
+print("=== REPORTE DE CLASIFICACIÓN ===")
+print(classification_report(y_test, y_pred))
+
+# Accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy:.4f}")
+
+# Matriz de confusión
+cm = confusion_matrix(y_test, y_pred)
+print("Matriz de Confusión:")
+print(cm)
+
+# Visualización
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(8, 6))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+plt.title('Matriz de Confusión - Random Forest Optimizado')
+plt.ylabel('Etiquetas Reales')
+plt.xlabel('Predicciones')
+plt.show()</code></pre>
+                            <button class="btn btn-sm btn-outline-light copy-btn" onclick="copyCode(this)">
+                                <i class="fas fa-copy"></i> Copiar Código
+                            </button>
+                        </div>
+                        <div id="metrics-comparison" class="tab-pane fade">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-primary">
+                                        <tr>
+                                            <th>Modelo</th>
+                                            <th>Accuracy</th>
+                                            <th>Precision (Churn)</th>
+                                            <th>Recall (Churn)</th>
+                                            <th>F1-Score (Churn)</th>
+                                            <th>AUC-ROC</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="table-success">
+                                            <td><strong>RF Optimizado</strong></td>
+                                            <td>0.847</td>
+                                            <td>0.721</td>
+                                            <td>0.689</td>
+                                            <td>0.704</td>
+                                            <td>0.923</td>
+                                        </tr>
+                                        <tr>
+                                            <td>RF Base</td>
+                                            <td>0.820</td>
+                                            <td>0.672</td>
+                                            <td>0.634</td>
+                                            <td>0.653</td>
+                                            <td>0.898</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Regresión Logística</td>
+                                            <td>0.800</td>
+                                            <td>0.658</td>
+                                            <td>0.531</td>
+                                            <td>0.588</td>
+                                            <td>0.867</td>
+                                        </tr>
+                                        <tr>
+                                            <td>KNN</td>
+                                            <td>0.763</td>
+                                            <td>0.584</td>
+                                            <td>0.489</td>
+                                            <td>0.533</td>
+                                            <td>0.821</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="alert alert-success">
+                                <strong>🏆 Ganador: Random Forest Optimizado</strong><br>
+                                Mejor balance entre precision y recall, con el F1-Score más alto (0.704)
+                            </div>
+                        </div>
+                        <div id="metrics-confusion" class="tab-pane fade">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Matriz de Confusión - RF Optimizado</h6>
+                                    <table class="table table-bordered text-center">
+                                        <thead>
+                                            <tr>
+                                                <td></td>
+                                                <th>Pred: No Churn</th>
+                                                <th>Pred: Churn</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th>Real: No Churn</th>
+                                                <td class="table-success">904</td>
+                                                <td class="table-danger">131</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Real: Churn</th>
+                                                <td class="table-warning">116</td>
+                                                <td class="table-success">257</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Interpretación</h6>
+                                    <ul>
+                                        <li><strong>Verdaderos Negativos:</strong> 904 (87.3%)</li>
+                                        <li><strong>Falsos Positivos:</strong> 131 (12.7%)</li>
+                                        <li><strong>Falsos Negativos:</strong> 116 (31.1%)</li>
+                                        <li><strong>Verdaderos Positivos:</strong> 257 (68.9%)</li>
+                                    </ul>
+                                    <div class="alert alert-info mt-3">
+                                        El modelo identifica correctamente el 68.9% de los clientes que cancelarán.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: SHAP Analysis -->
+    <div class="modal fade" id="shapModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content glass-card">
+                <div class="modal-header" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); color: white;">
+                    <h5 class="modal-title"><i class="fas fa-star me-2"></i>Importancia de Variables</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#shap-code">Código</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#shap-importance">Feature Importance</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#shap-insights">Insights Clave</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="shap-code" class="tab-pane fade show active">
+                            <pre><code class="language-python"># Feature Importance del Random Forest
+feature_importance = best_rf.feature_importances_
+feature_names = X_train.columns
+
+# Crear DataFrame para visualización
+importance_df = pd.DataFrame({
+    'feature': feature_names,
+    'importance': feature_importance
+}).sort_values('importance', ascending=False)
+
+# Top 15 variables más importantes
+top_features = importance_df.head(15)
+
+# Visualización
+plt.figure(figsize=(12, 8))
+sns.barplot(data=top_features, x='importance', y='feature', palette='viridis')
+plt.title('Top 15 Variables Más Importantes - Random Forest')
+plt.xlabel('Importancia')
+plt.tight_layout()
+plt.show()
+
+# Análisis SHAP (opcional)
+import shap
+explainer = shap.TreeExplainer(best_rf)
+shap_values = explainer.shap_values(X_test.iloc[:100])
+
+# Summary plot
+shap.summary_plot(shap_values[1], X_test.iloc[:100], 
+                  feature_names=feature_names)</code></pre>
+                            <button class="btn btn-sm btn-outline-light copy-btn" onclick="copyCode(this)">
+                                <i class="fas fa-copy"></i> Copiar Código
+                            </button>
+                        </div>
+                        <div id="shap-importance" class="tab-pane fade">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Ranking</th>
+                                            <th>Variable</th>
+                                            <th>Importancia</th>
+                                            <th>Interpretación</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>account.Charges.Total</td>
+                                            <td>0.234</td>
+                                            <td>Cargos totales acumulados por el cliente</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>customer.tenure</td>
+                                            <td>0.187</td>
+                                            <td>Tiempo como cliente de la empresa</td>
+                                        </tr>
+                                        <tr>
+                                            <td>3</td>
+                                            <td>account.Charges.Monthly</td>
+                                            <td>0.156</td>
+                                            <td>Cargo mensual actual</td>
+                                        </tr>
+                                        <tr>
+                                            <td>4</td>
+                                            <td>Contract_Month-to-month</td>
+                                            <td>0.098</td>
+                                            <td>Tipo de contrato mensual</td>
+                                        </tr>
+                                        <tr>
+                                            <td>5</td>
+                                            <td>services.Internet.Fiber optic</td>
+                                            <td>0.087</td>
+                                            <td>Servicio de fibra óptica</td>
+                                        </tr>
+                                        <tr>
+                                            <td>6</td>
+                                            <td>billing.Method.Electronic check</td>
+                                            <td>0.063</td>
+                                            <td>Método de pago cheque electrónico</td>
+                                        </tr>
+                                        <tr>
+                                            <td>7</td>
+                                            <td>services.Support.TechSupport</td>
+                                            <td>0.045</td>
+                                            <td>Soporte técnico contratado</td>
+                                        </tr>
+                                        <tr>
+                                            <td>8</td>
+                                            <td>services.Support.OnlineSecurity</td>
+                                            <td>0.041</td>
+                                            <td>Servicio de seguridad online</td>
+                                        </tr>
+                                        <tr>
+                                            <td>9</td>
+                                            <td>customer.SeniorCitizen</td>
+                                            <td>0.038</td>
+                                            <td>Cliente de tercera edad</td>
+                                        </tr>
+                                        <tr>
+                                            <td>10</td>
+                                            <td>billing.PaperlessBilling</td>
+                                            <td>0.035</td>
+                                            <td>Facturación sin papel</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="shap-insights" class="tab-pane fade">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="alert alert-danger">
+                                        <h6><i class="fas fa-exclamation-triangle"></i> Factores de Alto Riesgo</h6>
+                                        <ul>
+                                            <li><strong>Contratos mensuales:</strong> 3x más probabilidad de churn</li>
+                                            <li><strong>Fibra óptica:</strong> Clientes insatisfechos con el servicio</li>
+                                            <li><strong>Pago con cheque electrónico:</strong> Menos compromiso</li>
+                                            <li><strong>Sin soporte técnico:</strong> Problemas no resueltos</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="alert alert-success">
+                                        <h6><i class="fas fa-shield-alt"></i> Factores Protectores</h6>
+                                        <ul>
+                                            <li><strong>Alta permanencia (tenure):</strong> >24 meses reduce churn 80%</li>
+                                            <li><strong>Contratos anuales/bianuales:</strong> Mayor fidelización</li>
+                                            <li><strong>Servicios adicionales:</strong> OnlineSecurity, TechSupport</li>
+                                            <li><strong>Pagos automáticos:</strong> Banco/Tarjeta de crédito</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-lightbulb"></i> Hallazgos Principales</h6>
+                                <ul>
+                                    <li>Los <strong>primeros 12 meses</strong> son críticos para la retención</li>
+                                    <li>Clientes con <strong>cargos altos</strong> pero <strong>poca permanencia</strong> son más propensos al churn</li>
+                                    <li>La <strong>fibra óptica</strong> tiene problemas de satisfacción que requieren atención</li>
+                                    <li>Los <strong>servicios adicionales</strong> crean un efecto "sticky" positivo</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Conclusiones y Recomendaciones -->
+    <div class="modal fade" id="conclusionsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content glass-card">
+                <div class="modal-header" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); color: white;">
+                    <h5 class="modal-title"><i class="fas fa-clipboard-list me-2"></i>Conclusiones y Recomendaciones</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#conclusions-summary">Resumen Ejecutivo</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#conclusions-recommendations">Recomendaciones</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#conclusions-action">Plan de Acción</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#conclusions-roi">ROI Estimado</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="conclusions-summary" class="tab-pane fade show active">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card border-primary mb-3">
+                                        <div class="card-header bg-primary text-white">
+                                            <h6><i class="fas fa-bullseye"></i> Resultados del Modelo</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul>
+                                                <li><strong>Accuracy:</strong> 84.7%</li>
+                                                <li><strong>Precision (Churn):</strong> 72.1%</li>
+                                                <li><strong>Recall (Churn):</strong> 68.9%</li>
+                                                <li><strong>F1-Score:</strong> 70.4%</li>
+                                            </ul>
+                                            <p class="mb-0">El modelo identifica correctamente 7 de cada 10 clientes que cancelarán.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border-warning mb-3">
+                                        <div class="card-header bg-warning text-dark">
+                                            <h6><i class="fas fa-chart-line"></i> Impacto en el Negocio</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul>
+                                                <li><strong>Tasa de Churn actual:</strong> 27%</li>
+                                                <li><strong>Clientes en riesgo identificados:</strong> ~1,200</li>
+                                                <li><strong>Valor promedio cliente:</strong> $1,800/año</li>
+                                                <li><strong>Pérdida potencial evitable:</strong> $2.16M</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-success">
+                                <h6><i class="fas fa-trophy"></i> Factores Críticos Identificados</h6>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <strong>Contractuales:</strong>
+                                        <ul class="mb-0">
+                                            <li>Contratos mensuales</li>
+                                            <li>Facturación electrónica</li>
+                                            <li>Métodos de pago</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Servicios:</strong>
+                                        <ul class="mb-0">
+                                            <li>Fibra óptica (calidad)</li>
+                                            <li>Falta de soporte técnico</li>
+                                            <li>Servicios adicionales</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Financieros:</strong>
+                                        <ul class="mb-0">
+                                            <li>Cargos mensuales altos</li>
+                                            <li>Cargos totales bajos</li>
+                                            <li>Tiempo de permanencia</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="conclusions-recommendations" class="tab-pane fade">
+                            <div class="accordion" id="recommendationsAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="rec1">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                                            <i class="fas fa-file-contract me-2"></i> 1. Estrategia Contractual
+                                        </button>
+                                    </h2>
+                                    <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#recommendationsAccordion">
+                                        <div class="accordion-body">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <h6 class="text-primary">Acciones Inmediatas:</h6>
+                                                    <ul>
+                                                        <li>Incentivos para contratos anuales (15% descuento)</li>
+                                                        <li>Bloqueo de precios por 24 meses</li>
+                                                        <li>Migración automática a débito bancario</li>
+                                                        <li>Programas de fidelización</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h6 class="text-success">Beneficios Esperados:</h6>
+                                                    <ul>
+                                                        <li>Reducción 40% churn en contratos mensuales</li>
+                                                        <li>Incremento 25% en ARPU</li>
+                                                        <li>Mejora 15% en cash flow predecible</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="rec2">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
+                                            <i class="fas fa-wifi me-2"></i> 2. Mejora de Servicios
+                                        </button>
+                                    </h2>
+
+
+									<div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#recommendationsAccordion">
+                        <div class="accordion-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary">Fibra Óptica:</h6>
+                                    <ul>
+                                        <li>Auditoría técnica de calidad de servicio</li>
+                                        <li>Upgrade de infraestructura en zonas críticas</li>
+                                        <li>SLA mejorado: 99.9% uptime garantizado</li>
+                                        <li>Compensación automática por interrupciones</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-success">Soporte Técnico:</h6>
+                                    <ul>
+                                        <li>Soporte 24/7 incluido en todos los planes</li>
+                                        <li>Chat en vivo con IA inicial</li>
+                                        <li>Técnicos especializados por tipo de servicio</li>
+                                        <li>Resolución en primera llamada: meta 80%</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="rec3">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
+                            <i class="fas fa-shield-alt me-2"></i> 3. Programa de Retención Proactiva
+                        </button>
+                    </h2>
+                    <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#recommendationsAccordion">
+                        <div class="accordion-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary">Early Warning System:</h6>
+                                    <ul>
+                                        <li>Scoring automático mensual de riesgo</li>
+                                        <li>Alertas para clientes con score >70%</li>
+                                        <li>Llamadas proactivas a clientes en riesgo</li>
+                                        <li>Ofertas personalizadas según perfil</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-success">Intervenciones Dirigidas:</h6>
+                                    <ul>
+                                        <li>Descuentos temporales (3-6 meses)</li>
+                                        <li>Servicios adicionales gratuitos</li>
+                                        <li>Upgrade de plan sin costo adicional</li>
+                                        <li>Programa de referidos con incentivos</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="rec4">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4">
+                            <i class="fas fa-users me-2"></i> 4. Experiencia del Cliente
+                        </button>
+                    </h2>
+                    <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#recommendationsAccordion">
+                        <div class="accordion-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary">Onboarding Mejorado:</h6>
+                                    <ul>
+                                        <li>Tutorial interactivo en primeros 30 días</li>
+                                        <li>Llamada de bienvenida personalizada</li>
+                                        <li>Configuración técnica gratuita</li>
+                                        <li>Descuento progresivo primeros 6 meses</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-success">Satisfacción Continua:</h6>
+                                    <ul>
+                                        <li>NPS surveys automatizados</li>
+                                        <li>Portal de autoservicio mejorado</li>
+                                        <li>App móvil con funciones avanzadas</li>
+                                        <li>Programa de fidelidad con puntos</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="conclusions-action" class="tab-pane fade">
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-badge bg-primary"><i class="fas fa-play"></i></div>
+                    <div class="timeline-content">
+                        <h6>Fase 1: Implementación Inmediata (0-30 días)</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Tecnología:</strong>
+                                <ul>
+                                    <li>Despliegue del modelo en producción</li>
+                                    <li>Dashboard de monitoreo en tiempo real</li>
+                                    <li>Integración con CRM existente</li>
+                                    <li>Alertas automáticas por email/SMS</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Comercial:</strong>
+                                <ul>
+                                    <li>Capacitación equipo de retención</li>
+                                    <li>Scripts de llamadas personalizados</li>
+                                    <li>Ofertas especiales pre-aprobadas</li>
+                                    <li>KPIs y métricas de seguimiento</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-badge bg-warning"><i class="fas fa-cogs"></i></div>
+                    <div class="timeline-content">
+                        <h6>Fase 2: Optimización de Servicios (30-90 días)</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Infraestructura:</strong>
+                                <ul>
+                                    <li>Auditoría de calidad fibra óptica</li>
+                                    <li>Upgrade de equipos críticos</li>
+                                    <li>Monitoreo proactivo de red</li>
+                                    <li>SLA mejorados con penalizaciones</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Atención al Cliente:</strong>
+                                <ul>
+                                    <li>Centro de soporte 24/7</li>
+                                    <li>Chatbot con IA integrado</li>
+                                    <li>Portal de autoservicio renovado</li>
+                                    <li>Aplicación móvil con nuevas funciones</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-badge bg-success"><i class="fas fa-chart-line"></i></div>
+                    <div class="timeline-content">
+                        <h6>Fase 3: Programas de Fidelización (90-180 días)</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Retención:</strong>
+                                <ul>
+                                    <li>Programa de puntos y recompensas</li>
+                                    <li>Descuentos por antigüedad</li>
+                                    <li>Servicios premium gratuitos</li>
+                                    <li>Eventos exclusivos para clientes VIP</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Adquisición:</strong>
+                                <ul>
+                                    <li>Programa de referidos incentivado</li>
+                                    <li>Paquetes familiares atractivos</li>
+                                    <li>Promociones cross-selling</li>
+                                    <li>Campañas de win-back automatizadas</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-badge bg-info"><i class="fas fa-sync"></i></div>
+                    <div class="timeline-content">
+                        <h6>Fase 4: Mejora Continua (180+ días)</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Analytics:</strong>
+                                <ul>
+                                    <li>Reentrenamiento mensual del modelo</li>
+                                    <li>A/B testing de estrategias</li>
+                                    <li>Análisis de cohortes avanzado</li>
+                                    <li>Predicción de CLV (Customer Lifetime Value)</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Innovación:</strong>
+                                <ul>
+                                    <li>Nuevos servicios basados en datos</li>
+                                    <li>Inteligencia artificial conversacional</li>
+                                    <li>Personalización extrema de ofertas</li>
+                                    <li>Ecosystem de partners estratégicos</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="conclusions-roi" class="tab-pane fade">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card border-success">
+                        <div class="card-header bg-success text-white">
+                            <h6><i class="fas fa-dollar-sign"></i> Inversión Requerida</h6>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr>
+                                        <td>Tecnología y Desarrollo</td>
+                                        <td class="text-end"><strong>$180,000</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Infraestructura y Equipos</td>
+                                        <td class="text-end"><strong>$320,000</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Personal y Capacitación</td>
+                                        <td class="text-end"><strong>$150,000</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Marketing y Promociones</td>
+                                        <td class="text-end"><strong>$200,000</strong></td>
+                                    </tr>
+                                    <tr class="table-success">
+                                        <td><strong>TOTAL INVERSIÓN</strong></td>
+                                        <td class="text-end"><strong>$850,000</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h6><i class="fas fa-chart-line"></i> Beneficios Proyectados (Anual)</h6>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr>
+                                        <td>Reducción Churn (35%)</td>
+                                        <td class="text-end"><strong>$756,000</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Incremento ARPU (15%)</td>
+                                        <td class="text-end"><strong>$540,000</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Upselling/Cross-selling</td>
+                                        <td class="text-end"><strong>$380,000</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Reducción costos adquisición</td>
+                                        <td class="text-end"><strong>$220,000</strong></td>
+                                    </tr>
+                                    <tr class="table-primary">
+                                        <td><strong>BENEFICIOS TOTALES</strong></td>
+                                        <td class="text-end"><strong>$1,896,000</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="alert alert-success text-center">
+                        <h4><i class="fas fa-trophy"></i></h4>
+                        <h5>ROI</h5>
+                        <h3 class="text-success">123%</h3>
+                        <small>Retorno sobre inversión anual</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="alert alert-info text-center">
+                        <h4><i class="fas fa-clock"></i></h4>
+                        <h5>Payback</h5>
+                        <h3 class="text-info">5.4 meses</h3>
+                        <small>Tiempo de recuperación</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="alert alert-warning text-center">
+                        <h4><i class="fas fa-chart-area"></i></h4>
+                        <h5>NPV (5 años)</h5>
+                        <h3 class="text-warning">$6.2M</h3>
+                        <small>Valor presente neto</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="alert alert-success">
+                <h6><i class="fas fa-lightbulb"></i> Factores Críticos de Éxito</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul>
+                            <li><strong>Adopción rápida:</strong> Implementar en 90 días</li>
+                            <li><strong>Capacitación intensiva:</strong> Equipos comerciales y técnicos</li>
+                            <li><strong>Monitoreo constante:</strong> KPIs semanales</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul>
+                            <li><strong>Liderazgo comprometido:</strong> Sponsor C-level</li>
+                            <li><strong>Cultura data-driven:</strong> Decisiones basadas en datos</li>
+                            <li><strong>Mejora continua:</strong> Iteraciones mensuales</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Función para abrir modales
+        function openModal(modalId) {
+            const modal = new bootstrap.Modal(document.getElementById(modalId));
+            modal.show();
+        }
+
+        // Función para copiar código
+        function copyCode(button) {
+            const codeBlock = button.previousElementSibling.querySelector('code');
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Cambiar temporalmente el botón
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i> ¡Copiado!';
+                button.classList.add('btn-success');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('btn-success');
+                }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar: ', err);
+                button.innerHTML = '<i class="fas fa-times"></i> Error';
+                button.classList.add('btn-danger');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('btn-danger');
+                }, 2000);
+            });
+        }
+
+        // Función para ir arriba
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Mostrar/ocultar FAB según scroll
+        window.addEventListener('scroll', () => {
+            const fab = document.querySelector('.fab');
+            if (window.scrollY > 300) {
+                fab.style.opacity = '1';
+                fab.style.pointerEvents = 'auto';
+            } else {
+                fab.style.opacity = '0';
+                fab.style.pointerEvents = 'none';
+            }
+        });
+
+        // Animación de entrada para las tarjetas
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationDelay = '0s';
+                    entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+                }
+            });
+        }, observerOptions);
+
+        // Observar todas las tarjetas
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.phase-card').forEach(card => {
+                observer.observe(card);
+            });
+        });
+
+        // Agregar efecto de pulso a los elementos clickeables
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('[onclick]').forEach(element => {
+                element.addEventListener('mouseenter', function() {
+                    this.style.animation = 'pulse 1s infinite';
+                });
+                
+                element.addEventListener('mouseleave', function() {
+                    this.style.animation = '';
+                });
+            });
+        });
+
+        // Timeline styles for action plan
+        const timelineCSS = `
+            .timeline {
+                position: relative;
+                padding-left: 30px;
+            }
+            
+            .timeline::before {
+                content: '';
+                position: absolute;
+                left: 15px;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: linear-gradient(to bottom, #667eea, #764ba2);
+            }
+            
+            .timeline-item {
+                position: relative;
+                margin-bottom: 30px;
+                background: white;
+                border-radius: 15px;
+                padding: 20px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                margin-left: 30px;
+            }
+            
+            .timeline-badge {
+                position: absolute;
+                left: -45px;
+                top: 20px;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 12px;
+            }
+            
+            .timeline-content h6 {
+                color: #2d3748;
+                margin-bottom: 15px;
+                font-weight: 600;
+            }
+        `;
+
+        // Agregar estilos de timeline
+        const style = document.createElement('style');
+        style.textContent = timelineCSS;
+        document.head.appendChild(style);
+
+        // Inicializar tooltips de Bootstrap si existen
+        document.addEventListener('DOMContentLoaded', () => {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+
+        // Mejorar la experiencia de navegación con smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+
+    <style>
+        /* Estilos adicionales para FAB */
+        .fab {
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        /* Mejoras visuales adicionales */
+        .glass-card:hover .task-item {
+            transform: translateX(5px);
+        }
+
+        .alert-model {
+            border-radius: 12px;
+            border-left: 4px solid;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(103, 126, 234, 0.1);
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+
+        .nav-tabs .nav-link {
+            border-radius: 10px 10px 0 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs .nav-link:hover {
+            transform: translateY(-2px);
+            background-color: rgba(103, 126, 234, 0.1);
+        }
+
+        .nav-tabs .nav-link.active {
+            background: var(--primary-gradient);
+            color: white !important;
+            border-color: transparent;
+        }
+
+        /* Efectos especiales para métricas importantes */
+        .metric-highlight {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            font-size: 1.2em;
+        }
+
+        /* Animaciones adicionales */
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .slide-in-right {
+            animation: slideInRight 0.6s ease-out;
+        }
+
+        /* Responsive mejoras */
+        @media (max-width: 576px) {
+            .timeline-item {
+                margin-left: 15px;
+                padding: 15px;
+            }
+            
+            .timeline-badge {
+                left: -30px;
+                width: 25px;
+                height: 25px;
+            }
+            
+            .fab {
+                width: 50px;
+                height: 50px;
+                bottom: 1rem;
+                right: 1rem;
+            }
+        }
+    </style>
+</body>
+</html>

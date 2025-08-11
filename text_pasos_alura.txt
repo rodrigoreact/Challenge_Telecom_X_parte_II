@@ -1,0 +1,30 @@
+Ver si hay valores faltantes
+X_train.isnull().sum()
+
+Esto te mostrará cuántos valores faltantes hay en cada columna.
+
+Ver exactamente dónde están los NaN
+X_train[X_train.isnull().any(axis=1)]
+
+
+Esto devolverá todas las filas que contienen al menos un valor faltante.
+ 
+Si ya normalizaste los datos y quieres verificar:
+import numpy as np
+np.isnan(X_train_normalizado).sum()
+Esto te dice cuántos valores NaN hay en el array después de la normalización.
+Si X_train_normalizado todavía es un DataFrame:
+pd.DataFrame(X_train_normalizado).isnull().sum()
+
+Posibles soluciones:
+
+ Opción 1: Usar un imputador (como SimpleImputer) antes de normalizar:
+ from sklearn.impute import SimpleImputer
+
+imputer = SimpleImputer(strategy='mean')  # También puede ser 'median' o 'most_frequent'
+X_train_imputado = imputer.fit_transform(X_train)
+X_train_normalizado = normalizacion.fit_transform(X_train_imputado)
+
+Opción 2: Eliminar filas o columnas con NaN:
+X_train = X_train.dropna()
+y_train = y_train.loc[X_train.index]  # Asegura que las etiquetas sigan alineadas
