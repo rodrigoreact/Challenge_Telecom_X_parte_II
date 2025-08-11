@@ -4,10 +4,6 @@
 
 [![🌐 Ver Sitio Web](https://img.shields.io/badge/🌐-Live%20Demo-blue?style=for-the-badge)](https://rodrigoreact.github.io/Challenge_Telecom_X_parte_II/)
 
-<!-- Luego el resto de tu README -->
-
-## Descripción del Proyecto
-...
 
 ## Descripción del Proyecto
 
