@@ -1,6 +1,6 @@
 # Desafío Telecom X - Parte 2
 
-[![🌐 Ver Sitio Web](https://img.shields.io/badge/🌐-Live%20Demo-blue?style=for-the-badge)](https://rodrigoreact.github.io/Challenge_Telecom_X_parte_II/)
+## Para ver sitio web hacer, puedes hacer clic en: (https://rodrigoriveros.cl/telecom_x/)
 
 
 ## Descripción del Proyecto
