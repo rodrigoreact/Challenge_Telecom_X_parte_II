@@ -1,7 +1,5 @@
 # Desafío Telecom X - Parte 2
 
-# Desafío Telecom X - Parte 2
-
 [![🌐 Ver Sitio Web](https://img.shields.io/badge/🌐-Live%20Demo-blue?style=for-the-badge)](https://rodrigoreact.github.io/Challenge_Telecom_X_parte_II/)
 
 
