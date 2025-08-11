@@ -77,3 +77,5 @@ Este proyecto está licenciado bajo la [Licencia MIT](LICENSE).
 ## Contacto
 
 Para dudas o sugerencias, contáctanos en [correo@ejemplo.com](mailto:correo@ejemplo.com) o abre un issue en el repositorio.
+
+## Para verlo, puedes hacer clic en: (https://rodrigoriveros.cl/telecom_x/)
