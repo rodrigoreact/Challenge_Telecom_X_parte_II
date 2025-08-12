@@ -1,6 +1,6 @@
 # Desafío Telecom X - Parte 2
 
-## Para ver sitio web puedes hacer clic en: (https://rodrigoriveros.cl/telecom_x/)
+## Sitio trasladado a escuelaenlinea.cl/telecom_x/
 
 
 ## Descripción del Proyecto
