@@ -1,6 +1,6 @@
 # Desafío Telecom X - Parte 2
 
-## Sitio trasladado a: [escuelaenlinea.cl/telecom_x/](https://escuelaenlinea.cl/telecom_x/)
+## Sitio trasladado a: [escuelaenlinea.cl/)
 
 
 ## Descripción del Proyecto
