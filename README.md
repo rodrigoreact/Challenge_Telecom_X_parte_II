@@ -1,6 +1,7 @@
 # Desafío Telecom X - Parte 2
 
-## Sitio trasladado a: [escuelaenlinea.cl/)
+## Para ver el desafío en: [escuelaenlinea.cl](https://escuelaenlinea.cl/)
+
 
 
 ## Descripción del Proyecto
@@ -71,4 +72,5 @@ Este proyecto está licenciado bajo la [Licencia MIT](LICENSE).
 
 Para dudas o sugerencias, contáctanos en [correo@ejemplo.com](mailto:correo@ejemplo.com) o abre un issue en el repositorio.
 
-## Para verlo, puedes hacer clic en: (https://rodrigoriveros.cl/telecom_x/)
+## Para verlo en: [escuelaenlinea.cl](https://escuelaenlinea.cl/)
+
